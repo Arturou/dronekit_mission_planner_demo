@@ -1,0 +1,12 @@
+version: '3'
+services:
+  dronekit:
+    image: dronekit:1.0
+    container_name: dronekit
+    build:
+      context: ./dronekit
+    ports:
+      - "5760:5760"
+    entrypoint:
+        - dronekit-sitl
+        - copter

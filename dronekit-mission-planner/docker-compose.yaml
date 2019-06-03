@@ -1,12 +1,46 @@
 version: '3'
 services:
   dronekit:
-    image: dronekit:1.0
+    #Containerized drone simulator
+    image: dronekit:19.06
     container_name: dronekit
     build:
       context: ./dronekit
     ports:
       - "5760:5760"
-    entrypoint:
-        - dronekit-sitl
-        - copter
+      #- "14551:14551/udp"
+    #entrypoint:
+    #    - dronekit-sitl
+    #    - copter
+    command: ["bash", "-c", "while true ; do continue ; done"]
+  mavproxy:
+    #Containerized proxy used to communicate dronekit simulator
+    #with mission planner
+    image: mavproxy:19.06
+    container_name: mavproxy
+    build:
+      context: ./mavproxy
+    command: ["bash", "-c", "while true ; do continue ; done"]
+    #entrypoint:
+    #  - mavproxy.py
+    #  - --master
+    #  - tcp:dronekit:5760
+    #  - --out
+    #  - udp:py-simulation:14551
+    #  - --out
+    #  - udp:host.docker.internal:14550
+    depends_on:
+      - dronekit
+      - py-simulation
+
+  py-simulation:
+    #Daemon container service to run python dronekit simulation scripts
+    image: py-simulation:19.06
+    container_name: py-simulation
+    build:
+      context: ./simulation
+    command : ["bash", "-c", "while true ; do continue ; done"]
+    volumes:
+      - "<path to your>:/home/scripts"
+    depends_on:
+      - dronekit
